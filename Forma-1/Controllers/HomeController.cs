@@ -8,33 +8,38 @@ using Microsoft.Extensions.Logging;
 using Forma_1.Models;
 using Forma_1.Services;
 using System.Security.Claims;
+using AutoMapper;
+using Forma_1.ViewModels;
 
 namespace Forma_1.Controllers
 {
     public class HomeController : Controller
     {
-        public HomeController(ILogger<HomeController> logger, TeamService teamService)
+        public HomeController(ILogger<HomeController> logger, IMapper mapper, TeamService teamService)
         {
             _logger = logger;
             this.teamService = teamService;
+            this.mapper = mapper;
         }
 
         public async Task<IActionResult> Index()
         {
-            var teams = await teamService.GetTeamList();
-            return View(teams);
+            IEnumerable<Team> teams = await teamService.GetTeamList();
+            IEnumerable<TeamViewModel> teamsViewModel = mapper.Map<IEnumerable<TeamViewModel>>(teams);
+            return View(teamsViewModel);
         }
 
         public IActionResult AddTeam()
         {
-            var new_team = new Team();
+            TeamViewModel new_team = new TeamViewModel();
             return View("TeamForm", new_team);
         }
 
         public async Task<IActionResult> EditTeam(Guid Id)
         {
-            var team = await teamService.GetTeam(Id);
-            return View("TeamForm", team);
+            Team team = await teamService.GetTeam(Id);
+            TeamViewModel teamViewModel = mapper.Map<TeamViewModel>(team);
+            return View("TeamForm", teamViewModel);
         }
 
         public async Task<IActionResult> DeleteTeam(Guid Id)
@@ -53,11 +58,12 @@ namespace Forma_1.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> SaveTeam(Team team)
+        public async Task<IActionResult> SaveTeam(TeamViewModel teamViewModel)
         {
             try
             {
                 var UserId = User.Claims.Where(c => c.Type == ClaimTypes.NameIdentifier).First().Value;
+                Team team = mapper.Map<Team>(teamViewModel);
 
                 if (team.Id == Guid.Empty)
                     await teamService.AddTeam(team);
@@ -84,7 +90,8 @@ namespace Forma_1.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
-        TeamService teamService;
+        private readonly TeamService teamService;
+        private readonly IMapper mapper;
         private readonly ILogger<HomeController> _logger;
     }
 }
