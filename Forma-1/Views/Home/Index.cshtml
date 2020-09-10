@@ -1,0 +1,38 @@
+﻿@model List<Forma_1.Models.Team>
+@using Microsoft.AspNetCore.Identity
+@inject Microsoft.AspNetCore.Identity.SignInManager<IdentityUser> SignInManager
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<table class="table table-striped">
+			
+    <thead><tr>
+        <th>Name</th>
+        <th>Founded</th>
+        <th>Championship wins</th>
+        <th>Payment completed</th>
+    </tr></thread>
+        
+    <tbody>
+    
+        @foreach(var item in Model)
+        {
+            <tr>
+                <td>@item.Name</td>
+                <td>@item.Founded</td>
+                <td>@item.Wins</td>
+                <td>@item.IsPaid</td>
+
+                @if (SignInManager.IsSignedIn(User))
+                {
+                    <td><a asp-controller="Home" asp-action="EditTeam" asp-route-id="@item.Id">Edit</a></td>
+                    <td><a asp-controller="Home" asp-action="DeleteTeam" asp-route-id="@item.Id">Delete</a></td>
+                }
+                
+            </tr>
+        }
+    
+    </tbody>
+</table>
