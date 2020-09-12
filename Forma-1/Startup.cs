@@ -1,12 +1,13 @@
+using BLL.Mappers;
+using BLL.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
-using Forma_1.Data;
+using DAL;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Forma_1.Services;
 using AutoMapper;
 using Forma_1.Mappers;
 
@@ -27,7 +28,7 @@ namespace Forma_1
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlite(
                     Configuration.GetConnectionString("DefaultConnection")));
-            services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+            services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             services.AddControllersWithViews();
             services.AddRazorPages();
@@ -37,6 +38,7 @@ namespace Forma_1
             var mappingConfig = new MapperConfiguration(mc =>
             {
                 mc.AddProfile(new TeamViewModelMappingProfile());
+                mc.AddProfile(new TeamMappingProfile());
             });
 
             IMapper mapper = mappingConfig.CreateMapper();

@@ -6,10 +6,11 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Forma_1.Models;
-using Forma_1.Services;
+using BLL.Services;
 using System.Security.Claims;
 using AutoMapper;
 using Forma_1.ViewModels;
+using BLL.DTO;
 
 namespace Forma_1.Controllers
 {
@@ -24,7 +25,7 @@ namespace Forma_1.Controllers
 
         public async Task<IActionResult> Index()
         {
-            IEnumerable<Team> teams = await teamService.GetTeamList();
+            IEnumerable<TeamDto> teams = await teamService.GetTeamList();
             IEnumerable<TeamViewModel> teamsViewModel = mapper.Map<IEnumerable<TeamViewModel>>(teams);
             return View(teamsViewModel);
         }
@@ -37,7 +38,7 @@ namespace Forma_1.Controllers
 
         public async Task<IActionResult> EditTeam(Guid Id)
         {
-            Team team = await teamService.GetTeam(Id);
+            TeamDto team = await teamService.GetTeam(Id);
             TeamViewModel teamViewModel = mapper.Map<TeamViewModel>(team);
             return View("TeamForm", teamViewModel);
         }
@@ -63,7 +64,7 @@ namespace Forma_1.Controllers
             try
             {
                 var UserId = User.Claims.Where(c => c.Type == ClaimTypes.NameIdentifier).First().Value;
-                Team team = mapper.Map<Team>(teamViewModel);
+                TeamDto team = mapper.Map<TeamDto>(teamViewModel);
 
                 if (team.Id == Guid.Empty)
                     await teamService.AddTeam(team);

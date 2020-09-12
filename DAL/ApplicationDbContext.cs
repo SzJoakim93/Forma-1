@@ -1,8 +1,8 @@
-﻿using Forma_1.Models;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Model;
 
-namespace Forma_1.Data
+namespace DAL
 {
     public class ApplicationDbContext : IdentityDbContext
     {

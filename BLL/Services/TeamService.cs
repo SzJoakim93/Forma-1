@@ -1,26 +1,30 @@
+using AutoMapper;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Forma_1.Data;
-using Forma_1.Models;
+using BLL.DTO;
+using DAL;
+using Model;
 using Microsoft.EntityFrameworkCore;
 
-namespace Forma_1.Services
+namespace BLL.Services
 {
     public class TeamService
     {
-        public TeamService(ApplicationDbContext dbContext)
+        public TeamService(ApplicationDbContext dbContext, IMapper mapper)
         {
             this.dbContext = dbContext;
+            this.mapper = mapper;
         }
 
-        public async Task AddTeam(Team new_team)
+        public async Task AddTeam(TeamDto teamDto)
         {
-            await dbContext.Teams.AddAsync(new_team);
+            Team team = mapper.Map<Team>(teamDto);
+            await dbContext.Teams.AddAsync(team);
             await dbContext.SaveChangesAsync();
         }
 
-        public async Task EditTeam(Team team)
+        public async Task EditTeam(TeamDto team)
         {
             var editTeam = await dbContext.Teams.FirstOrDefaultAsync(x => x.Id == team.Id);
             editTeam.Name = team.Name;
@@ -37,16 +41,19 @@ namespace Forma_1.Services
             await dbContext.SaveChangesAsync();
         }
 
-        public async Task<List<Team>> GetTeamList()
+        public async Task<List<TeamDto>> GetTeamList()
         {
-            return await dbContext.Teams.ToListAsync();
+            List<TeamDto> teams = mapper.Map<List<TeamDto>>(await dbContext.Teams.ToListAsync());
+            return teams;
         }
 
-        public async Task<Team> GetTeam(Guid id)
+        public async Task<TeamDto> GetTeam(Guid id)
         {
-            return await dbContext.Teams.FirstOrDefaultAsync(x => x.Id == id);
+            TeamDto team = mapper.Map<TeamDto>(await dbContext.Teams.FirstOrDefaultAsync(x => x.Id == id));
+            return team;
         }
 
         private readonly ApplicationDbContext dbContext;
+        private readonly IMapper mapper;
     }    
 } 
