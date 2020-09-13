@@ -63,6 +63,9 @@ namespace Forma_1.Controllers
         {
             try
             {
+                if (!ModelState.IsValid)
+                    return View("TeamForm", teamViewModel);
+
                 var UserId = User.Claims.Where(c => c.Type == ClaimTypes.NameIdentifier).First().Value;
                 TeamDto team = mapper.Map<TeamDto>(teamViewModel);
 
