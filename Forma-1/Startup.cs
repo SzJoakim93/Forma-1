@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using AutoMapper;
 using Forma_1.Mappers;
+using BLL.ServiceInterfaces;
 
 namespace Forma_1
 {
@@ -33,7 +34,7 @@ namespace Forma_1
             services.AddControllersWithViews();
             services.AddRazorPages();
 
-            services.AddScoped<TeamService>();
+            services.AddScoped<ITeamService, TeamService>();
 
             var mappingConfig = new MapperConfiguration(mc =>
             {

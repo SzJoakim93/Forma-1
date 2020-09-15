@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Forma_1.Models;
-using BLL.Services;
+using BLL.ServiceInterfaces;
 using AutoMapper;
 using Forma_1.ViewModels;
 using BLL.DTO;
@@ -15,7 +15,7 @@ namespace Forma_1.Controllers
 {
     public class HomeController : Controller
     {
-        public HomeController(ILogger<HomeController> logger, IMapper mapper, TeamService teamService)
+        public HomeController(ILogger<HomeController> logger, IMapper mapper, ITeamService teamService)
         {
             _logger = logger;
             this.teamService = teamService;
@@ -89,7 +89,7 @@ namespace Forma_1.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
-        private readonly TeamService teamService;
+        private readonly ITeamService teamService;
         private readonly IMapper mapper;
         private readonly ILogger<HomeController> _logger;
     }

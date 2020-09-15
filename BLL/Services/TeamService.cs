@@ -6,10 +6,11 @@ using BLL.DTO;
 using DAL;
 using Model;
 using Microsoft.EntityFrameworkCore;
+using BLL.ServiceInterfaces;
 
 namespace BLL.Services
 {
-    public class TeamService
+    public class TeamService : ITeamService
     {
         public TeamService(ApplicationDbContext dbContext, IMapper mapper)
         {
