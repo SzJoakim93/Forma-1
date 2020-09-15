@@ -1,16 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Forma_1.Models;
 using BLL.Services;
-using System.Security.Claims;
 using AutoMapper;
 using Forma_1.ViewModels;
 using BLL.DTO;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Forma_1.Controllers
 {
@@ -23,6 +22,7 @@ namespace Forma_1.Controllers
             this.mapper = mapper;
         }
 
+        [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
             IEnumerable<TeamDto> teams = await teamService.GetTeamList();
@@ -32,12 +32,18 @@ namespace Forma_1.Controllers
 
         public IActionResult AddTeam()
         {
+            if (!User.Identity.IsAuthenticated)
+                return Content("Access denied.");
+
             TeamViewModel new_team = new TeamViewModel();
             return View("TeamForm", new_team);
         }
 
         public async Task<IActionResult> EditTeam(Guid Id)
         {
+            if (!User.Identity.IsAuthenticated)
+                return Content("Access denied.");
+
             TeamDto team = await teamService.GetTeam(Id);
             TeamViewModel teamViewModel = mapper.Map<TeamViewModel>(team);
             return View("TeamForm", teamViewModel);
@@ -45,42 +51,31 @@ namespace Forma_1.Controllers
 
         public async Task<IActionResult> DeleteTeam(Guid Id)
         {
-            try
-            {
-                var UserId = User.Claims.Where(c => c.Type == ClaimTypes.NameIdentifier).First().Value;
-                await teamService.RemoveTeam(Id);
-                return RedirectToAction("Index");
-            }
-            catch (Exception e)
-            {
-                return Content("An error occoured: " + e.Message +  " Access denied.");
-            }
+            if (!User.Identity.IsAuthenticated)
+                return Content("Access denied.");
+
+            await teamService.RemoveTeam(Id);
+            return RedirectToAction("Index");
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SaveTeam(TeamViewModel teamViewModel)
         {
-            try
-            {
-                if (!ModelState.IsValid)
-                    return View("TeamForm", teamViewModel);
+            if (!User.Identity.IsAuthenticated)
+                return Content("Access denied.");
 
-                var UserId = User.Claims.Where(c => c.Type == ClaimTypes.NameIdentifier).First().Value;
-                TeamDto team = mapper.Map<TeamDto>(teamViewModel);
+            if (!ModelState.IsValid)
+                return View("TeamForm", teamViewModel);
 
-                if (team.Id == Guid.Empty)
-                    await teamService.AddTeam(team);
-                else
-                    await teamService.EditTeam(team);
+            TeamDto team = mapper.Map<TeamDto>(teamViewModel);
 
-                return RedirectToAction("Index", "Home");
-            }
-            catch (Exception e)
-            {
-                return Content("An error occoured: " + e.Message +  " Access denied.");
-            }
-            
+            if (team.Id == Guid.Empty)
+                await teamService.AddTeam(team);
+            else
+                await teamService.EditTeam(team);
+
+            return RedirectToAction("Index", "Home");
         }
 
         public IActionResult Privacy()
